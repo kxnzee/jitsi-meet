@@ -9,8 +9,10 @@ import { makeStyles } from 'tss-react/mui';
 import { IReduxState } from '../../../app/types';
 import Icon from '../../../base/icons/components/Icon';
 import { IconArrowDown, IconArrowUp } from '../../../base/icons/svg';
+import { isLocalParticipantModerator } from '../../../base/participants/functions';
+import Button from '../../../base/ui/components/web/Button';
 import { normalizeAccents } from '../../../base/util/strings.web';
-import { subscribeVisitorsList } from '../../../visitors/actions';
+import { promoteRequest, subscribeVisitorsList } from '../../../visitors/actions';
 import {
     getVisitorsCount,
     getVisitorsList,
@@ -63,6 +65,9 @@ const useStyles = makeStyles()(theme => {
             flex: 1,
             minHeight: '200px',
             maxHeight: '100%'
+        },
+        includeButton: {
+            marginRight: theme.spacing(2)
         }
     };
 });
@@ -78,6 +83,7 @@ export default function CurrentVisitorsList({ searchString }: IProps) {
     const visitors = useSelector(getVisitorsList);
     const featureEnabled = useSelector(isVisitorsListEnabled);
     const shouldDisplayList = useSelector(shouldDisplayCurrentVisitorsList);
+    const isModerator = useSelector(isLocalParticipantModerator);
     const { defaultRemoteDisplayName } = useSelector((state: IReduxState) => state['features/base/config']);
     const { t } = useTranslation();
     const { classes } = useStyles();
@@ -122,6 +128,8 @@ export default function CurrentVisitorsList({ searchString }: IProps) {
 
     const Row = ({ index, style }: { index: number; style: any; }) => {
         const v = filtered[index];
+        const includeInConversation = useCallback(
+            () => dispatch(promoteRequest(v.id)), [ dispatch, v.id ]);
 
         return (
             <div style = { style }>
@@ -130,7 +138,17 @@ export default function CurrentVisitorsList({ searchString }: IProps) {
                     audioMediaState = { MEDIA_STATE.NONE }
                     displayName = { v.name || defaultRemoteDisplayName || 'Fellow Jitster' }
                     participantID = { v.id }
-                    videoMediaState = { MEDIA_STATE.NONE } />
+                    videoMediaState = { MEDIA_STATE.NONE }>
+                    {isModerator && (
+                        <Button
+                            accessibilityLabel = { `${t('participantsPane.actions.includeInConversation')} ${v.name}` }
+                            className = { classes.includeButton }
+                            labelKey = 'participantsPane.actions.includeInConversation'
+                            onClick = { includeInConversation }
+                            size = 'small'
+                            testId = { `include-in-conversation-${v.id}` } />
+                    )}
+                </ParticipantItem>
             </div>
         );
     };

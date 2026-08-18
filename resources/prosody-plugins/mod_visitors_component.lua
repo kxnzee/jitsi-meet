@@ -415,6 +415,58 @@ local function process_promotion_response(room, id, approved)
             allow = approved }):up());
 end
 
+-- Promotes a visitor who has not sent a promotion-request, triggered directly by a moderator.
+-- Writes into the same visitors_promotion_map state that process_promotion_response writes on approve,
+-- and sends the same kind of promotion-response the visitor's client already handles for the approve-flow.
+-- @param room the room
+-- @param id the real jid of the visitor to promote
+local function process_moderator_promotion(room, id)
+    if not visitors_promotion_map[room.jid] or not room._connected_vnodes then
+        module:log('warn', 'Received moderator promotion for %s in room %s without active visitors', id, room.jid);
+        return;
+    end
+
+    if DEBUG then
+        module:log('debug', 'Processing moderator promotion for room %s, id %s', room.jid, id);
+    end
+
+    -- avoid leaving a stale pending request around if the visitor raised their hand around the same time
+    if visitors_promotion_requests[room.jid] then
+        visitors_promotion_requests[room.jid][id] = nil;
+    end
+
+    local focus_occupant = get_focus_occupant(room);
+    local focus_jid = focus_occupant and focus_occupant.bare_jid or nil;
+    local node = jid.node(room.jid);
+
+    -- the moderator addresses the visitor by id only, without knowing which vnode they are connected
+    -- through, so the response is sent to every connected vnode; each vnode only acts on it if it
+    -- actually has an occupant with a matching real jid (mod_fmuc.lua, room:get_occupant_by_real_jid)
+    for vnode_host in room._connected_vnodes:items() do
+        local username = uuid_generate();
+
+        visitors_promotion_map[room.jid][username] = {
+            from = vnode_host;
+            jid = id;
+        };
+
+        local iq_id = new_id();
+        sent_iq_cache:set(iq_id, socket.gettime());
+
+        module:send(st.iq({
+                type='set', to = vnode_host, from = module.host, id = iq_id })
+            :tag('visitors', {
+                xmlns='jitsi:visitors',
+                room = jid.join(node, muc_domain_prefix..'.'..vnode_host),
+                focusjid = focus_jid })
+             :tag('promotion-response', {
+                xmlns='jitsi:visitors',
+                jid = id,
+                username = username,
+                allow = 'true' }):up());
+    end
+end
+
 -- if room metadata does not have visitors.live set to `true` and there are no occupants in the meeting
 -- it will skip calling goLive endpoint
 local function go_live(room)
@@ -622,7 +674,8 @@ process_host_module(muc_domain_prefix..'.'..muc_domain_base, function(host_modul
             = event.message, event.error, event.occupant, event.room, event.stanza;
 
         if not data or data.type ~= 'visitors'
-            or (data.action ~= "promotion-response" and data.action ~= "demote-request") then
+            or (data.action ~= "promotion-response" and data.action ~= "demote-request"
+                and data.action ~= "promote-request") then
             if error then
                 module:log('error', 'Error decoding error:%s', error);
             end
@@ -657,6 +710,14 @@ process_host_module(muc_domain_prefix..'.'..muc_domain_base, function(host_modul
                     end
                 end
             end
+        elseif data.action == "promote-request" then
+            if occupant.nick ~= room.jid..'/'..data.actor then
+                module:log('error', 'Bad actor in promote request %s', stanza);
+                event.origin.send(st.error_reply(stanza, "cancel", "bad-request"));
+                return true;
+            end
+
+            process_moderator_promotion(room, data.id);
         else
             if data.id then
                 process_promotion_response(room, data.id, data.approved and 'true' or 'false');

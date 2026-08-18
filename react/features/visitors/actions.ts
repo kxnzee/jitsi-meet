@@ -113,6 +113,29 @@ export function demoteRequest(id: string) {
 }
 
 /**
+ * Sends a moderator-initiated request to include a visitor in the conversation, without requiring
+ * the visitor to have sent a promotion-request beforehand.
+ *
+ * @param {string} id - The ID for the visitor.
+ * @returns {Function}
+ */
+export function promoteRequest(id: string) {
+    return (dispatch: IStore['dispatch'], getState: IStore['getState']) => {
+        const conference = getCurrentConference(getState);
+        const localParticipant = getLocalParticipant(getState());
+
+        sendAnalytics(createRemoteVideoMenuButtonEvent('promote.button', { 'participant_id': id }));
+
+        conference?.sendMessage({
+            type: 'visitors',
+            action: 'promote-request',
+            id,
+            actor: localParticipant?.id
+        });
+    };
+}
+
+/**
  * Removes a promotion request from the state.
  *
  * @param {IPromotionRequest} request - The request.
