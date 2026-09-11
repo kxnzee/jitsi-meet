@@ -119,6 +119,7 @@ export interface IJitsiConference {
     getBreakoutRooms: Function;
     getConnection: Function;
     getFileSharing: Function;
+    getFocusRegion: () => string | undefined;
     getLocalParticipantProperty: Function;
     getLocalTracks: Function;
     getMeetingUniqueId: Function;
@@ -721,4 +722,3 @@ function _setRoom(state: IConferenceState, action: AnyAction) {
         room
     });
 }
-

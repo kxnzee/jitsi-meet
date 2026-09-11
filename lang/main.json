@@ -641,6 +641,7 @@
         "accessibilityLabel": "Show info",
         "addPassword": "Add $t(lockRoomPassword)",
         "cancelPassword": "Cancel $t(lockRoomPassword)",
+        "conferenceRegion": "Conference region: {{region}}",
         "conferenceURL": "Link:",
         "copyNumber": "Copy number",
         "country": "Country",
