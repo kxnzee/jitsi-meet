@@ -19,6 +19,7 @@ import ConferenceTimer from '../ConferenceTimer';
 import { getConferenceInfo } from '../functions.web';
 
 import ConferenceInfoContainer from './ConferenceInfoContainer';
+import ConferenceRegionLabel from './ConferenceRegionLabel';
 import InsecureRoomNameLabel from './InsecureRoomNameLabel';
 import RaisedHandsCountLabel from './RaisedHandsCountLabel';
 import SpeakerStatsLabel from './SpeakerStatsLabel';
@@ -87,6 +88,10 @@ const COMPONENTS: Array<{
     {
         Component: ConferenceTimer,
         id: 'conference-timer'
+    },
+    {
+        Component: ConferenceRegionLabel,
+        id: 'conference-region'
     },
     {
         Component: TimeTimerPill,
