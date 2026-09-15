@@ -650,6 +650,7 @@
         "dialInNumber": "Dial-in:",
         "dialInSummaryError": "Error fetching dial-in info now. Please try again later.",
         "dialInTollFree": "Toll Free",
+        "focusVersion": "Focus version: {{version}}",
         "genericError": "Whoops, something went wrong.",
         "inviteLiveStream": "To view the live stream of this meeting, click this link: {{url}}",
         "invitePhone": "To join by phone instead, tap this: {{number}},,{{conferenceID}}#\n",

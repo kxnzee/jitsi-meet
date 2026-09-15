@@ -10,6 +10,7 @@ export const CONFERENCE_INFO = {
         'video-quality',
         'visitors-count',
         'insecure-room',
+        'focus-version',
         'top-panel-toggle'
     ]
 };
