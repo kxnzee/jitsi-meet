@@ -19,6 +19,7 @@ import ConferenceTimer from '../ConferenceTimer';
 import { getConferenceInfo } from '../functions.web';
 
 import ConferenceInfoContainer from './ConferenceInfoContainer';
+import FocusBuildIdLabel from './FocusBuildIdLabel';
 import FocusVersionLabel from './FocusVersionLabel';
 import InsecureRoomNameLabel from './InsecureRoomNameLabel';
 import RaisedHandsCountLabel from './RaisedHandsCountLabel';
@@ -131,6 +132,10 @@ const COMPONENTS: Array<{
     {
         Component: FocusVersionLabel,
         id: 'focus-version'
+    },
+    {
+        Component: FocusBuildIdLabel,
+        id: 'focus-build-id'
     },
     {
         Component: ToggleTopPanelLabel,

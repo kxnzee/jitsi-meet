@@ -11,6 +11,7 @@ export const CONFERENCE_INFO = {
         'visitors-count',
         'insecure-room',
         'focus-version',
+        'focus-build-id',
         'top-panel-toggle'
     ]
 };
