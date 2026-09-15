@@ -19,6 +19,7 @@ import ConferenceTimer from '../ConferenceTimer';
 import { getConferenceInfo } from '../functions.web';
 
 import ConferenceInfoContainer from './ConferenceInfoContainer';
+import FocusVersionLabel from './FocusVersionLabel';
 import InsecureRoomNameLabel from './InsecureRoomNameLabel';
 import RaisedHandsCountLabel from './RaisedHandsCountLabel';
 import SpeakerStatsLabel from './SpeakerStatsLabel';
@@ -126,6 +127,10 @@ const COMPONENTS: Array<{
     {
         Component: InsecureRoomNameLabel,
         id: 'insecure-room'
+    },
+    {
+        Component: FocusVersionLabel,
+        id: 'focus-version'
     },
     {
         Component: ToggleTopPanelLabel,
